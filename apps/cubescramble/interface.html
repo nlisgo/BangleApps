@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="../../css/spectre.min.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="columns">
+      </div>
+    </div>
+
+    <script src="../../core/lib/interface.js"></script>
+    <script>
+var domSolves = document.getElementById("solves");
+
+function getSolveList() {
+  Util.showModal("Loading Solves...");
+
+  Puck.write(`\x10(function() {
+    const solves = require("Storage").readJSON("cube-scramble.json") || [];
+    Bluetooth.print(JSON.stringify(solves));
+    })()\n`, solves => {
+      const storedSolves = JSON.parse(solves);
+
+      document.querySelector(".columns").innerHTML = storedSolves.map(solve => `
+        <div class="column col-6 col-xs-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title h5">${solve.count}: ${solve.time.toFixed(3)}</div>
+              <div class="card-subtitle text-gray">${solve.scramble}</div>
+            </div>
+            <div class="card-footer">${new Date(solve.date).toUTCString()}</div>
+          </div>
+        </div>`).join("\n");
+
+      Util.hideModal();
+  });
+}
+
+function onInit() {
+  getSolveList();
+}
+
+    </script>
+  </body>
+</html>

@@ -1,3 +1,5 @@
+const log = require("Storage").readJSON("cube-scramble.json", 1) || [];
+
 // Scramble code from: https://raw.githubusercontent.com/bjcarlson42/blog-post-sample-code/master/Rubik's%20Cube%20JavaScript%20Scrambler/part_two.js
 const makeScramble = () => {
   const options = ["F", "F2", "F'", "R", "R2", "R'", "U", "U2", "U'", "B", "B2", "B'", "L", "L2", "L'", "D", "D2", "D'"];
@@ -58,13 +60,14 @@ const getRandomInt = max => Math.floor(Math.random() * Math.floor(max)); // retu
 const getRandomIntBetween = (min, max) => Math.floor(Math.random() * (max - min) + min);
 
 const presentScramble = () => {
+  const scramble = makeScramble().join(" ");
   E.showPrompt(makeScramble().join(" "), {
     title: "cube scramble",
     buttons: {"solve": true, "reset": false}
   }).then((v) => {
     if (v) {
       const start = new Date();
-      E.showPrompt(" ", {
+      E.showPrompt("Solve no " + String(log.length + 1), {
         title: "cube scramble",
         buttons: {"stop": true}
       }).then(() => {
@@ -73,6 +76,15 @@ const presentScramble = () => {
           title: "cube scramble",
           buttons: {"next": true}
         }).then(() => {
+          log.push({
+            count: log.length + 1,
+            scramble: scramble,
+            time: time,
+            offset: 0,
+            dnf: false,
+            date: start.toISOString()
+          });
+          require("Storage").writeJSON("cube-scramble.json", log);
           presentScramble();
         });
       });
@@ -85,6 +97,7 @@ const presentScramble = () => {
 const init = () => {
   Bangle.setLCDTimeout(0);
   Bangle.setLCDPower(1);
+  
   presentScramble();
 };
 
